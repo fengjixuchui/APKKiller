@@ -1,18 +1,15 @@
-#include <stdio.h>
 #include <iostream>
 #include <jni.h>
 
 #include "APKKiller.h"
 
-int RegisterFunctions(JNIEnv *env) {
-    JNINativeMethod methods[2];
-    methods[0].name = "Start";
-    methods[0].signature = "(Landroid/content/Context;)V";
-    methods[0].fnPtr = (void *) APKKill;
+extern jint Whale_OnLoad(JavaVM *vm, void *reserved);
 
-    methods[1].name = "nativeInvoke";
-    methods[1].signature = "(Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;";
-    methods[1].fnPtr = (void *) nativeInvoke;
+int RegisterFunctions(JNIEnv *env) {
+    JNINativeMethod methods[] = {
+            {"Start", "(Landroid/content/Context;)V", (void *) APKKill},
+            {"processInvoke", "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;", (void *) processInvoke}
+    };
 
     jclass clazz = env->FindClass("com/kuro/APKKiller");
     if (!clazz)
@@ -33,5 +30,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (RegisterFunctions(env) != 0) {
         return -1;
     }
-    return JNI_VERSION_1_6;
+
+    return Whale_OnLoad(vm, reserved);
 }
